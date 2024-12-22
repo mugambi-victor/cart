@@ -1,5 +1,5 @@
-# Use the official PHP 8.1 FPM slim version
-FROM php:8.1-fpm-alpine
+# Use PHP 8.2 instead of 8.1
+FROM php:8.2-fpm-alpine
 
 # Install system dependencies
 RUN apk update && apk add --no-cache \
@@ -11,11 +11,9 @@ RUN apk update && apk add --no-cache \
     unzip \
     libzip-dev \
     oniguruma-dev \
-    autoconf \
-    gcc \
-    g++ \
-    make \
-    linux-headers
+    icu-dev \
+    linux-headers \
+    postgresql-dev
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -26,44 +24,40 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         zip \
         bcmath \
         mbstring \
-        opcache
+        opcache \
+        intl \
+        pcntl
 
-# Configure PHP memory limits
-RUN echo "memory_limit=-1" > /usr/local/etc/php/conf.d/memory-limit.ini
+# Install PECL extensions
+RUN apk add --no-cache $PHPIZE_DEPS \
+    && pecl install redis \
+    && docker-php-ext-enable redis
+
+# Configure PHP
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" && \
+    echo "memory_limit=512M" >> /usr/local/etc/php/conf.d/docker-php-memory-limit.ini
 
 # Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
 WORKDIR /var/www
 
-# Copy composer files first to leverage Docker cache
+# Copy composer files
 COPY composer.json composer.lock ./
 
-# Create empty composer scripts for now
-RUN echo "{}" > composer.json.tmp && \
-    mv composer.json composer.json.bak && \
-    mv composer.json.tmp composer.json
-
-# Install dependencies with increased verbosity for debugging
-RUN composer install --no-scripts --no-autoloader --no-interaction --prefer-dist -vvv || \
-    (echo "Composer install failed. Showing directory contents:" && \
-     ls -la && \
-     cat composer.json && \
-     exit 1)
-
-# Restore original composer.json
-RUN mv composer.json.bak composer.json
+# Install dependencies
+RUN composer install --no-scripts --no-autoloader --no-interaction --prefer-dist
 
 # Copy the rest of the application code
 COPY . .
 
-# Generate optimized autoload files
+# Generate optimized autoload files and run scripts
 RUN composer dump-autoload --optimize
 
 # Set up permissions
-RUN chown -R www-data:www-data /var/www && \
-    chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 # Expose port 9000 and start PHP-FPM server
 EXPOSE 9000
