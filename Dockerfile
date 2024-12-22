@@ -5,7 +5,7 @@ FROM php:8.1-fpm-alpine
 RUN apk update && apk add --no-cache \
     libpng-dev \
     libjpeg-turbo-dev \
-    libfreetype-dev \
+   freetype-dev  \
     zip \
     git \
     unzip \
