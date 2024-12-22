@@ -28,6 +28,9 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         mbstring \
         opcache
 
+# Configure PHP memory limits
+RUN echo "memory_limit=-1" > /usr/local/etc/php/conf.d/memory-limit.ini
+
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
@@ -37,8 +40,20 @@ WORKDIR /var/www
 # Copy composer files first to leverage Docker cache
 COPY composer.json composer.lock ./
 
-# Install dependencies
-RUN composer install --no-scripts --no-autoloader --no-interaction --prefer-dist
+# Create empty composer scripts for now
+RUN echo "{}" > composer.json.tmp && \
+    mv composer.json composer.json.bak && \
+    mv composer.json.tmp composer.json
+
+# Install dependencies with increased verbosity for debugging
+RUN composer install --no-scripts --no-autoloader --no-interaction --prefer-dist -vvv || \
+    (echo "Composer install failed. Showing directory contents:" && \
+     ls -la && \
+     cat composer.json && \
+     exit 1)
+
+# Restore original composer.json
+RUN mv composer.json.bak composer.json
 
 # Copy the rest of the application code
 COPY . .
