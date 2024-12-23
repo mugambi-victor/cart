@@ -26,7 +26,7 @@
             <!-- Navigation Menu -->
             <div class="flex space-x-6">
                 <!-- Orders Link -->
-                <a href="{{route('orders')}}" class=" text-lg text-gray-700 hover:text-blue-600">Orders</a>
+                <button id="redirect-orders" class="text-lg text-gray-700 hover:text-blue-600">Fetch Orders</button>
 
 
 
@@ -115,6 +115,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/heroicons@2.0.16/outline.js"></script>
     <script src="/js/main.js" defer></script>
+    <script>
+    document.getElementById('redirect-orders').addEventListener('click', function() {
+        window.location.href = '/orders'; // Redirect to the orders page
+    });
+    </script>
 </body>
 
 </html>

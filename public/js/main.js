@@ -307,60 +307,9 @@ document.getElementById("checkout-button").addEventListener("click", async funct
 });
 
 
-function fetchOrders() {
-    const ordersContainer = document.getElementById('orders-container');
-    
-    if (!ordersContainer) {
-        console.error("orders-container element not found during fetchOrders.");
-        return; // Stop if ordersContainer is not found
-    }
 
-    // Show loading message while fetching
-    ordersContainer.innerHTML = '<p>Loading your orders...</p>';
-console.log("fetching orders...");
-    // Fetch orders from the API
-   fetch('/api/orders', {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${authToken}`,
-            'Accept': 'application/json'
-        }
-    })
-    .then(async response => {
-        if (!response.ok) {
-            // Log the response body if it's not OK
-            const text = await response.text();
-            throw new Error(text);
-        }
-        return response.json();
-    })
-    .then(orders => {
-        console.log("Fetched Orders:", orders); // Log the orders to check what is returned
-        ordersContainer.innerHTML = ''; // Clear loading message
 
-        if (orders.length > 0) {
-            orders.forEach(order => {
-                const orderCard = document.createElement('div');
-                orderCard.classList.add('bg-white', 'shadow-lg', 'p-4', 'rounded-lg', 'transition', 'hover:shadow-xl');
-                orderCard.innerHTML = `
-                    <h3 class="text-xl font-semibold text-gray-800">Order #${order.id}</h3>
-                    <p class="text-gray-600">Date: ${new Date(order.created_at).toLocaleDateString()}</p>
-                    <p class="text-gray-600">Status: ${order.status}</p>
-                    <p class="text-gray-600">Total: $${order.total}</p>
-                    <a href="/order/${order.id}" class="text-blue-600 hover:underline">View Details</a>
-                `;
-                ordersContainer.appendChild(orderCard);
-            });
-        } else {
-            ordersContainer.innerHTML = "<p class='text-center text-gray-500'>You have no orders.</p>";
-        }
-    })
-    .catch(error => {
-        console.error("Error fetching orders:", error);
-        ordersContainer.innerHTML = "<p class='text-center text-red-500'>There was an error loading your orders.</p>";
-    });
 
-}
 
 
 // Function to handle logout
@@ -442,3 +391,4 @@ document.getElementById('logout-button').addEventListener('click', async () => {
         alert('Failed to logout. Please try again.');
     }
 });
+

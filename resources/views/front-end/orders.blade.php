@@ -11,114 +11,98 @@
 <body class="bg-gray-50 min-h-screen">
     <!-- Header Section -->
     <header class="bg-white shadow-md py-2 px-4 fixed top-0 left-0 w-full z-20">
-        <div class=" mx-4 flex items-center justify-between">
-            <!-- Brand Name -->
-            <div class="text-2xl font-bold text-gray-800">
-                Flawless
-            </div>
-            <!-- Navigation Menu -->
+        <div class="mx-4 flex items-center justify-between">
+            <div class="text-2xl font-bold text-gray-800">Flawless</div>
             <div class="flex space-x-6">
-                <!-- Orders Link -->
-                <a href="{{ route('orders') }}" id="orders-link"
-                    class="text-lg text-gray-700 hover:text-blue-600">Orders</a>
-
-
-
-
-                <!-- Cart Link with Icon -->
-                <a href="/cart/view" class="flex items-center text-lg text-gray-700 hover:text-blue-600 relative">
-                    <!-- Heroicon for Cart -->
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 3h18l-1.34 7.26a2 2 0 0 1-1.98 1.74H7.32a2 2 0 0 1-1.98-1.74L3 3m2 0l1.34 7.26a2 2 0 0 0 1.98 1.74h9.36a2 2 0 0 0 1.98-1.74L19 3m-9 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm5 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z">
-                        </path>
-                    </svg>
-                    <!-- Cart Count Badge -->
-                    <span id="cart-count"
-                        class="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">0</span>
-                </a>
+                <a href="{{ route('index') }}" class="text-lg text-gray-700 hover:text-blue-600">Home</a>
+                <button id="fetch-orders" class="text-lg text-gray-700 hover:text-blue-600">Fetch Orders</button>
             </div>
-
         </div>
     </header>
+
     <div class="container mx-auto px-4 py-12">
-        <!-- Header -->
-        <header class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Your Orders</h1>
-            <p class="text-gray-600 mt-2">View and manage your order history</p>
-        </header>
-
         <!-- Orders Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            @php
-            $orders = app(\App\Http\Controllers\OrderController::class)->viewOrders();
-            @endphp
-            @if($orders->isEmpty())
-            <div class="col-span-full">
-                <div class="bg-white rounded-xl shadow-md p-8 text-center">
-                    <div class="mb-4">
-                        <svg class="w-16 h-16 mx-auto text-gray-400" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                        </svg>
-                    </div>
-                    <p class="text-gray-500 text-lg mb-4">You have no orders yet.</p>
-                    <a href="/"
-                        class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-                        Start Shopping
-                    </a>
-                </div>
-            </div>
-            @else
-            @foreach($orders as $order)
-            <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition duration-300">
-                <!-- Order Header -->
-                <div class="bg-gray-50 px-4 py-3 border-b">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-lg font-semibold text-gray-800">Order #{{ $order->id }}</h3>
-                        <span class="px-3 py-1 rounded-full text-sm
-                            @if($order->status == 'completed') bg-green-100 text-green-800
-                            @elseif($order->status == 'pending') bg-yellow-100 text-yellow-800
-                            @elseif($order->status == 'cancelled') bg-red-100 text-red-800
-                            @else bg-gray-100 text-gray-800
-                            @endif">
-                            {{ ucfirst($order->status) }}
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Order Details -->
-                <div class="p-4">
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Date</span>
-                            <span class="text-gray-800">
-                                {{ \Carbon\Carbon::parse($order->created_at)->format('M d, Y') }}
-                            </span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Total</span>
-                            <span class="text-gray-800 font-medium">
-                                ${{ number_format($order->total_amount, 2) }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Order Footer -->
-                <div class="px-4 py-3 bg-gray-50 border-t">
-                    <a href="/order/{{ $order->id }}" class="block w-full text-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg 
-                              hover:bg-blue-100 transition duration-300">
-                        View Details
-                    </a>
-                </div>
-            </div>
-            @endforeach
-            @endif
+        <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Orders will be injected here via JS -->
         </div>
     </div>
+
+
+    <script>
+    // Function to fetch and display orders
+    async function fetchOrders() {
+        try {
+            const token = localStorage.getItem('authToken'); // Get the stored token
+            console.log("The token is", token);
+
+            // Fetch orders from the API
+            const response = await fetch('/api/orders', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            // Check if the response is successful
+            if (!response.ok) {
+                console.log(response);
+                throw new Error('Failed to fetch orders');
+            }
+
+            // Parse the response data
+            const orders = await response.json();
+            console.log("Orders are:", orders);
+
+            // Display orders if available
+            const ordersContainer = document.getElementById('orders-container');
+            ordersContainer.innerHTML = ''; // Clear any previous content
+
+            if (orders.length > 0) {
+                orders.forEach(order => {
+                    const orderElement = document.createElement('div');
+                    orderElement.classList.add(
+                        'order-item',
+                        'bg-white',
+                        'rounded-xl',
+                        'shadow-md',
+                        'p-4',
+                        'mb-4'
+                    );
+
+                    orderElement.innerHTML = `
+    <h3 class="text-xl font-semibold text-gray-800">Order #${order.id}</h3>
+    <p>Status: <span class="text-sm ${
+                            order.status === 'completed'
+                                ? 'text-green-500'
+                                : order.status === 'pending'
+                                ? 'text-yellow-500'
+                                : 'text-red-500'
+                        }">${order.status}</span></p>
+    <p>Date: ${new Date(order.created_at).toLocaleDateString()}</p>
+    <p>Total: $${order.total_amount}</p>
+    <a href="/order/${order.id}" class="text-blue-600 hover:underline">View Details</a>
+    `;
+
+                    ordersContainer.appendChild(orderElement);
+                });
+            } else {
+                ordersContainer.innerHTML = '<p>No orders found.</p>';
+            }
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+            document.getElementById('orders-container').innerHTML =
+                '<p>Error fetching orders. Please try again later.</p>';
+        }
+    }
+
+    // Automatically fetch orders when the page loads
+    document.addEventListener('DOMContentLoaded', fetchOrders);
+
+    // Fetch orders manually when the button is clicked
+    document.getElementById('fetch-orders').addEventListener('click', fetchOrders);
+    </script>
+
 </body>
 
 </html>

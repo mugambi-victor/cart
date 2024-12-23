@@ -56,10 +56,21 @@ class OrderController extends Controller
 
 
     // View orders
-    public function viewOrders()
+    public function viewOrders(Request $request)
+    {
+   
+        $user = $request->user(); // Get the authenticated user
+
+        // Fetch orders related to the logged-in user
+        $orders = Order::where('user_id', $user->id)->with('orderItems.product')->get();
+
+       return response()->json($orders);
+    }
+    public function viewOrders2()
     {
         $orders = Order::with('orderItems.product')->where('user_id', Auth::id())->get();
-        return $orders;
+        return view('front-end.orders', compact('orders'));
     }
+
 
 }

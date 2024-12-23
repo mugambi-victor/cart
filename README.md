@@ -45,7 +45,7 @@ php artisan key:generate
 
 **Set Up the Database:**
 
-Create a new database for the application.
+Create a new database for the application and seed initial data.
 
 Update the database credentials in the .env file:
 
@@ -69,6 +69,18 @@ Execute the following command database schema
 
 php artisan migrate
 
+Execute the following command to seed db data
+php artisan db:seed
+
+It creates two user
+1. admin - admin@cart.com, password:"password"
+2. customer - customer@cart.com password:"password"
+
+**interacting with the api**
+1. Use a tool like postman to access endpoiints
+  a. /api/register - to register a new user
+  b. /api/login - to login a user
+  c. /api/products - to manipulate product
 **Start redis-server**
 sudo service redis-server start
 

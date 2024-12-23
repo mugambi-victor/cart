@@ -34,8 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/orders/place',[OrderController::class,'placeOrder']);
     // Route::get('/orders',[OrderController::class,'viewOrders'])->name('orders.page');
 });
-Route::middleware('auth:sanctum')->get('/orders', [OrderController::class, 'viewOrders'])->name('orders.page');
-
+Route::middleware('auth:sanctum')->get('/orders', [OrderController::class, 'viewOrders']);
 Route::post('/register', [AuthenticationController::class, 'register'])->name('register');
 Route::post('/login', [AuthenticationController::class, 'login'])->name('login');
 Route::post('/logout', [AuthenticationController::class, 'logout'])->name('logout');

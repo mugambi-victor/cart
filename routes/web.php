@@ -17,7 +17,7 @@ Route::get('/login', function () {
 })->name('login.page');
 
 // Process Login (redirect for web)
-Route::post('/login/web', [AuthenticationController::class, 'webLogin'])->name('login.web');
+// Route::post('/login/web', [AuthenticationController::class, 'webLogin'])->name('login.web');
 Route::get('/orders', function () {
-    return view('front-end.orders'); // Ensure this matches the file name (orders.blade.php)
+    return view('front-end.orders');
 })->name('orders');
